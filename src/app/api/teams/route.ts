@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -12,8 +12,8 @@ const createTeamSchema = z.object({
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
-    
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -26,35 +26,44 @@ export async function GET() {
     }
 
     // 현재 사용자가 속한 팀 조회
+    // RLS 정책에 의해 자동으로 필터링됨
     const { data: teams, error } = await supabase
       .from('teams')
       .select(`
         *,
-        team_members!inner(user_id, role)
+        team_members (
+          user_id,
+          role
+        )
       `)
-      .or(`created_by.eq.${session.user.id},team_members.user_id.eq.${session.user.id}`)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('GET /api/teams error:', error);
       // 테이블이 없는 경우 더 명확한 에러 메시지 제공
-      if (error.message.includes('schema cache') || error.message.includes('does not exist')) {
+      if (error.message.includes('schema cache') || error.message.includes('does not exist') || error.message.includes('relation') || error.message.includes('table')) {
         return NextResponse.json(
-          { 
-            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          {
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.',
+            details: error.message
           },
           { status: 500 }
         );
       }
       return NextResponse.json(
-        { error: error.message },
+        { error: error.message, details: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json(teams || []);
-  } catch (error) {
+  } catch (error: any) {
+    console.error('GET /api/teams catch error:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
+      {
+        error: '서버 오류가 발생했습니다',
+        details: error?.message || 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -64,8 +73,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
-    
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -92,17 +101,19 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (teamError) {
+      console.error('POST /api/teams team creation error:', teamError);
       // 테이블이 없는 경우 더 명확한 에러 메시지 제공
-      if (teamError.message.includes('schema cache') || teamError.message.includes('does not exist')) {
+      if (teamError.message.includes('schema cache') || teamError.message.includes('does not exist') || teamError.message.includes('relation') || teamError.message.includes('table')) {
         return NextResponse.json(
-          { 
-            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          {
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.',
+            details: teamError.message
           },
           { status: 500 }
         );
       }
       return NextResponse.json(
-        { error: teamError.message },
+        { error: teamError.message, details: teamError.message },
         { status: 500 }
       );
     }
@@ -117,27 +128,35 @@ export async function POST(request: NextRequest) {
       });
 
     if (memberError) {
+      console.error('POST /api/teams member creation error:', memberError);
       // 팀 생성은 성공했지만 멤버 추가 실패 시 팀 삭제
-      await supabase.from('teams').delete().eq('id', team.id);
-      
+      try {
+        await supabase.from('teams').delete().eq('id', team.id);
+      } catch (deleteError) {
+        console.error('Failed to delete team after member error:', deleteError);
+      }
+
       // 테이블이 없는 경우 더 명확한 에러 메시지 제공
-      if (memberError.message.includes('schema cache') || memberError.message.includes('does not exist')) {
+      if (memberError.message.includes('schema cache') || memberError.message.includes('does not exist') || memberError.message.includes('relation') || memberError.message.includes('table')) {
         return NextResponse.json(
-          { 
-            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          {
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.',
+            details: memberError.message
           },
           { status: 500 }
         );
       }
-      
+
       return NextResponse.json(
-        { error: memberError.message },
+        { error: memberError.message, details: memberError.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json(team, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('POST /api/teams catch error:', error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
@@ -146,7 +165,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
+      {
+        error: '서버 오류가 발생했습니다',
+        details: error?.message || 'Unknown error'
+      },
       { status: 500 }
     );
   }
