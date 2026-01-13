@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldArrayPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -10,9 +10,9 @@ const createLogSchema = z.object({
   title: z.string().min(1, '제목을 입력해주세요'),
   description: z.string().optional(),
   what_learned: z.array(z.string()).min(1, '배운 점을 최소 1개 입력해주세요'),
-  improvements: z.array(z.string()).default([]),
-  next_steps: z.array(z.string()).default([]),
-  tags: z.array(z.string()).default([]),
+  improvements: z.array(z.string()),
+  next_steps: z.array(z.string()),
+  tags: z.array(z.string()),
 });
 
 type CreateLogFormData = z.infer<typeof createLogSchema>;
@@ -36,6 +36,8 @@ export default function NewLogPage() {
   } = useForm<CreateLogFormData>({
     resolver: zodResolver(createLogSchema),
     defaultValues: {
+      title: '',
+      description: '',
       what_learned: [''],
       improvements: [],
       next_steps: [],
@@ -47,27 +49,27 @@ export default function NewLogPage() {
     fields: whatLearnedFields,
     append: appendWhatLearned,
     remove: removeWhatLearned,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData>({
     control,
-    name: 'what_learned' as const,
+    name: 'what_learned' as FieldArrayPath<CreateLogFormData>,
   });
 
   const {
     fields: improvementsFields,
     append: appendImprovements,
     remove: removeImprovements,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData>({
     control,
-    name: 'improvements' as const,
+    name: 'improvements' as FieldArrayPath<CreateLogFormData>,
   });
 
   const {
     fields: nextStepsFields,
     append: appendNextSteps,
     remove: removeNextSteps,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData>({
     control,
-    name: 'next_steps' as const,
+    name: 'next_steps' as FieldArrayPath<CreateLogFormData>,
   });
 
   const tags = watch('tags') || [];
