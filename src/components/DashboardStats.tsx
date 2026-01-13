@@ -1,3 +1,5 @@
+'use client';
+
 import { Users, FileText, FolderKanban } from 'lucide-react';
 
 interface DashboardStatsProps {

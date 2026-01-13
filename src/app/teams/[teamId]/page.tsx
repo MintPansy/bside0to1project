@@ -63,7 +63,7 @@ export default async function TeamPage({
   };
 
   // 사용자가 팀 리더인지 확인
-  const currentMember = members.find((m: any) => m.user_id === session.user.id);
+  const currentMember = members?.find((m: any) => m.user_id === session.user.id);
   const isLeader = currentMember?.role === 'leader' || team.created_by === session.user.id;
 
   return (
@@ -109,22 +109,26 @@ export default async function TeamPage({
           <div className="bg-white shadow rounded-lg p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">팀원</h2>
             <div className="space-y-2">
-              {members.map((member: any) => (
-                <div
-                  key={member.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {member.users?.name || '알 수 없음'}
-                    </p>
-                    <p className="text-sm text-gray-500">{member.users?.email}</p>
+              {members && members.length > 0 ? (
+                members.map((member: any) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {member.users?.name || '알 수 없음'}
+                      </p>
+                      <p className="text-sm text-gray-500">{member.users?.email}</p>
+                    </div>
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      {member.role === 'leader' ? '리더' : '멤버'}
+                    </span>
                   </div>
-                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                    {member.role === 'leader' ? '리더' : '멤버'}
-                  </span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">팀원이 없습니다</p>
+              )}
             </div>
           </div>
 

@@ -6,13 +6,6 @@ import DashboardStats from '@/components/DashboardStats';
 import TeamCard from '@/components/TeamCard';
 import ActivityFeed from '@/components/ActivityFeed';
 import IconWrapper from '@/components/IconWrapper';
-import { 
-  Users, 
-  FileText, 
-  FolderKanban, 
-  TrendingUp,
-  ArrowRight
-} from 'lucide-react';
 
 export default async function DashboardPage() {
   const supabase = createSupabaseServerClient();
@@ -217,7 +210,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="bg-white rounded-xl shadow-lg p-12 text-center border-2 border-dashed border-gray-300">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <IconWrapper icon={Users} className="w-8 h-8 text-blue-600" />
+                  <IconWrapper icon="Users" className="w-8 h-8 text-blue-600" />
                 </div>
                 <p className="text-gray-700 text-lg font-medium mb-2">아직 팀이 없습니다</p>
                 <p className="text-gray-500 text-sm mb-6">
@@ -247,9 +240,9 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <IconWrapper icon={FileText} className="w-6 h-6" />
+                    <IconWrapper icon="FileText" className="w-6 h-6" />
                   </div>
-                  <IconWrapper icon={ArrowRight} className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <IconWrapper icon="ArrowRight" className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">새 로그 작성</h3>
                 <p className="text-green-100 text-sm">학습 내용을 기록하세요</p>
@@ -261,9 +254,9 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <IconWrapper icon={FolderKanban} className="w-6 h-6" />
+                    <IconWrapper icon="FolderKanban" className="w-6 h-6" />
                   </div>
-                  <IconWrapper icon={ArrowRight} className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <IconWrapper icon="ArrowRight" className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">포트폴리오 보기</h3>
                 <p className="text-orange-100 text-sm">자동 생성된 포트폴리오 확인</p>
@@ -275,9 +268,9 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <IconWrapper icon={TrendingUp} className="w-6 h-6" />
+                    <IconWrapper icon="TrendingUp" className="w-6 h-6" />
                   </div>
-                  <IconWrapper icon={ArrowRight} className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <IconWrapper icon="ArrowRight" className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">성장 분석</h3>
                 <p className="text-purple-100 text-sm">학습 통계 확인하기</p>
