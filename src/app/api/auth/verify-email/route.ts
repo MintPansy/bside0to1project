@@ -21,11 +21,15 @@ export async function GET(request: NextRequest) {
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     // 이메일 인증 처리
-    // Supabase 이메일 인증 링크는 token과 type을 URL 파라미터로 전달
+    // Supabase 이메일 인증 링크는 token_hash를 사용합니다
+    const otpType = type === 'recovery' ? 'recovery' : 'signup';
+    
+    // token_hash를 사용하는 방식 (이메일 인증 링크에서 사용)
+    // VerifyTokenHashParams 타입 사용
     const { data, error } = await supabase.auth.verifyOtp({
-      token: token,
-      type: type === 'recovery' ? 'recovery' : 'signup',
-    });
+      token_hash: token,
+      type: otpType,
+    } as { token_hash: string; type: 'signup' | 'recovery' });
 
     if (error) {
       return NextResponse.json(
