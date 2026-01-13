@@ -36,6 +36,15 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
+      // 테이블이 없는 경우 더 명확한 에러 메시지 제공
+      if (error.message.includes('schema cache') || error.message.includes('does not exist')) {
+        return NextResponse.json(
+          { 
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          },
+          { status: 500 }
+        );
+      }
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -83,6 +92,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (teamError) {
+      // 테이블이 없는 경우 더 명확한 에러 메시지 제공
+      if (teamError.message.includes('schema cache') || teamError.message.includes('does not exist')) {
+        return NextResponse.json(
+          { 
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          },
+          { status: 500 }
+        );
+      }
       return NextResponse.json(
         { error: teamError.message },
         { status: 500 }
@@ -101,6 +119,17 @@ export async function POST(request: NextRequest) {
     if (memberError) {
       // 팀 생성은 성공했지만 멤버 추가 실패 시 팀 삭제
       await supabase.from('teams').delete().eq('id', team.id);
+      
+      // 테이블이 없는 경우 더 명확한 에러 메시지 제공
+      if (memberError.message.includes('schema cache') || memberError.message.includes('does not exist')) {
+        return NextResponse.json(
+          { 
+            error: '데이터베이스 테이블을 찾을 수 없습니다. Supabase 대시보드에서 supabase/schema.sql 파일을 실행했는지 확인해주세요.' 
+          },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
         { error: memberError.message },
         { status: 500 }

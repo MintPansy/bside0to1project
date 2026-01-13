@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Plus } from 'lucide-react';
 
 const createTeamSchema = z.object({
   name: z.string().min(1, '팀 이름을 입력해주세요'),
@@ -44,7 +45,13 @@ export default function CreateTeamModal() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || '팀 생성에 실패했습니다');
+        // 에러 메시지가 스키마 관련이면 더 명확하게 표시
+        const errorMessage = result.error || '팀 생성에 실패했습니다';
+        if (errorMessage.includes('schema') || errorMessage.includes('테이블')) {
+          setError(errorMessage + ' Supabase 대시보드에서 스키마를 실행했는지 확인해주세요.');
+        } else {
+          setError(errorMessage);
+        }
         setIsLoading(false);
         return;
       }
@@ -63,9 +70,10 @@ export default function CreateTeamModal() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
       >
-        팀 만들기
+        <Plus className="w-5 h-5" />
+        <span>새 팀 만들기</span>
       </button>
 
       {isOpen && (
