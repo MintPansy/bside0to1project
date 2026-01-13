@@ -47,27 +47,27 @@ export default function NewLogPage() {
     fields: whatLearnedFields,
     append: appendWhatLearned,
     remove: removeWhatLearned,
-  } = useFieldArray<CreateLogFormData, 'what_learned'>({
+  } = useFieldArray({
     control,
-    name: 'what_learned',
+    name: 'what_learned' as const,
   });
 
   const {
     fields: improvementsFields,
     append: appendImprovements,
     remove: removeImprovements,
-  } = useFieldArray<CreateLogFormData, 'improvements'>({
+  } = useFieldArray({
     control,
-    name: 'improvements',
+    name: 'improvements' as const,
   });
 
   const {
     fields: nextStepsFields,
     append: appendNextSteps,
     remove: removeNextSteps,
-  } = useFieldArray<CreateLogFormData, 'next_steps'>({
+  } = useFieldArray({
     control,
-    name: 'next_steps',
+    name: 'next_steps' as const,
   });
 
   const tags = watch('tags') || [];
