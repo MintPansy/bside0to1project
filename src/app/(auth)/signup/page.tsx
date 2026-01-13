@@ -57,8 +57,15 @@ export default function SignupPage() {
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push('/dashboard');
+      // 이메일 인증이 필요한 경우 확인
+      // Supabase는 이메일 인증이 필요한 경우 사용자를 생성하지만 세션은 생성하지 않음
+      if (result.user && !result.session) {
+        // 이메일 인증 안내 페이지로 리다이렉트
+        router.push('/verify-email?email=' + encodeURIComponent(data.email));
+      } else {
+        // Redirect to dashboard on success
+        router.push('/dashboard');
+      }
     } catch (err) {
       setError('네트워크 오류가 발생했습니다');
       setIsLoading(false);

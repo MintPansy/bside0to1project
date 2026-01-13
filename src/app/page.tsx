@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import FAQAccordion from '@/components/FAQAccordion';
+import HeroImage from '@/components/HeroImage';
 
 export default async function LandingPage() {
   const supabase = createSupabaseServerClient();
@@ -65,39 +66,47 @@ export default async function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-white"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              팀 프로젝트 성장을 기록하고 포트폴리오로
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              분산된 정보는 그만, LearnTeam에서 한 곳에 관리하세요
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/signup"
-                className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-medium group"
-              >
-                무료로 시작하기
-                <svg
-                  className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* 텍스트 콘텐츠 */}
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                팀 프로젝트 성장을 기록하고 포트폴리오로
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                분산된 정보는 그만, LearnTeam에서 한 곳에 관리하세요
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-medium group"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-              <Link
-                href="#features"
-                className="inline-flex items-center justify-center px-8 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-lg font-medium"
-              >
-                사례 보기
-              </Link>
+                  무료로 시작하기
+                  <svg
+                    className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </Link>
+                <Link
+                  href="#features"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-lg font-medium"
+                >
+                  사례 보기
+                </Link>
+              </div>
+            </div>
+            
+            {/* 이미지 */}
+            <div className="relative">
+              <HeroImage />
             </div>
           </div>
         </div>
