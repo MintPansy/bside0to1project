@@ -10,9 +10,9 @@ const createLogSchema = z.object({
   title: z.string().min(1, '제목을 입력해주세요'),
   description: z.string().optional(),
   what_learned: z.array(z.string()).min(1, '배운 점을 최소 1개 입력해주세요'),
-  improvements: z.array(z.string()).optional(),
-  next_steps: z.array(z.string()).optional(),
-  tags: z.array(z.string()).optional(),
+  improvements: z.array(z.string()).default([]),
+  next_steps: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]),
 });
 
 type CreateLogFormData = z.infer<typeof createLogSchema>;
@@ -47,7 +47,7 @@ export default function NewLogPage() {
     fields: whatLearnedFields,
     append: appendWhatLearned,
     remove: removeWhatLearned,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData, 'what_learned'>({
     control,
     name: 'what_learned',
   });
@@ -56,7 +56,7 @@ export default function NewLogPage() {
     fields: improvementsFields,
     append: appendImprovements,
     remove: removeImprovements,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData, 'improvements'>({
     control,
     name: 'improvements',
   });
@@ -65,7 +65,7 @@ export default function NewLogPage() {
     fields: nextStepsFields,
     append: appendNextSteps,
     remove: removeNextSteps,
-  } = useFieldArray({
+  } = useFieldArray<CreateLogFormData, 'next_steps'>({
     control,
     name: 'next_steps',
   });
