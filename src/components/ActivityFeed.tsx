@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, FolderKanban, Users, Clock } from 'lucide-react';
+import IconWrapper from '@/components/IconWrapper';
 
 interface Activity {
   type: 'log' | 'portfolio' | 'team';
@@ -33,13 +33,13 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'log':
-        return { Icon: FileText, color: 'bg-blue-500', textColor: 'text-blue-600' };
+        return { iconName: 'FileText' as const, color: 'bg-blue-500', textColor: 'text-blue-600' };
       case 'portfolio':
-        return { Icon: FolderKanban, color: 'bg-yellow-500', textColor: 'text-yellow-600' };
+        return { iconName: 'FolderKanban' as const, color: 'bg-yellow-500', textColor: 'text-yellow-600' };
       case 'team':
-        return { Icon: Users, color: 'bg-green-500', textColor: 'text-green-600' };
+        return { iconName: 'Users' as const, color: 'bg-green-500', textColor: 'text-green-600' };
       default:
-        return { Icon: FileText, color: 'bg-gray-500', textColor: 'text-gray-600' };
+        return { iconName: 'FileText' as const, color: 'bg-gray-500', textColor: 'text-gray-600' };
     }
   };
 
@@ -73,7 +73,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="max-h-96 overflow-y-auto">
         {activities.map((activity, index) => {
-          const { Icon, color, textColor } = getActivityIcon(activity.type);
+          const { iconName, color, textColor } = getActivityIcon(activity.type);
           return (
             <Link
               key={`${activity.type}-${activity.id}-${index}`}
@@ -82,7 +82,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
             >
               {/* 좌측 컬러 아이콘 */}
               <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                <Icon className="w-6 h-6 text-white" />
+                <IconWrapper icon={iconName} className="w-6 h-6 text-white" />
               </div>
 
               {/* 중앙 내용 */}
@@ -97,7 +97,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
 
               {/* 우측 시간 */}
               <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
-                <Clock className="w-3 h-3" />
+                <IconWrapper icon="Clock" className="w-3 h-3" />
                 <span>{formatTimeAgo(activity.createdAt)}</span>
               </div>
             </Link>

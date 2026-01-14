@@ -1,11 +1,11 @@
 'use client';
-
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus } from 'lucide-react';
+import IconWrapper from '@/components/IconWrapper';
 
 const createTeamSchema = z.object({
   name: z.string().min(1, '팀 이름을 입력해주세요'),
@@ -72,7 +72,7 @@ export default function CreateTeamModal() {
         onClick={() => setIsOpen(true)}
         className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
       >
-        <Plus className="w-5 h-5" />
+        <IconWrapper icon="Plus" className="w-5 h-5" />
         <span>새 팀 만들기</span>
       </button>
 
