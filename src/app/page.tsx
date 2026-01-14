@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import FAQAccordion from '@/components/FAQAccordion';
 import HeroImage from '@/components/HeroImage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LandingPage() {
   const supabase = createSupabaseServerClient();
   const {

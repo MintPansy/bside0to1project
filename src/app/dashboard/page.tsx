@@ -7,6 +7,8 @@ import TeamCard from '@/components/TeamCard';
 import ActivityFeed from '@/components/ActivityFeed';
 import IconWrapper from '@/components/IconWrapper';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const supabase = createSupabaseServerClient();
   const {
