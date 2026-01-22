@@ -19,8 +19,8 @@ export function createClient() {
   const cookieStore = cookies()
 
   return createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    supabaseUrl!,
+    supabaseAnonKey!,
     {
       cookies: {
         get(name: string) {
@@ -36,7 +36,7 @@ export function createClient() {
         remove(name: string, options: any) {
           try {
             cookieStore.set({ name, value: '', ...options })
-          } catch (error) {}
+          } catch (error) { }
         },
       },
     }
@@ -54,7 +54,7 @@ export function createAdminClient() {
       'https://supabase.com/dashboard/project/_/settings/api'
     )
   }
-  
+
   const { createClient } = require('@supabase/supabase-js')
   return createClient(
     supabaseUrl,

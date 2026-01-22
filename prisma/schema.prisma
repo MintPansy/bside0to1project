@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 // 사용자 프로필 (Supabase Auth와 연동)
@@ -20,7 +19,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  teamsCreated     Team[]         @relation("TeamCreator")
+  teamsCreated    Team[]        @relation("TeamCreator")
   teamMemberships TeamMember[]
   learningLogs    LearningLog[]
   portfolios      Portfolio[]
@@ -39,22 +38,22 @@ model Team {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  creator       User           @relation("TeamCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-  members       TeamMember[]
-  learningLogs  LearningLog[]
-  portfolios    Portfolio[]
-  curatedLinks  CuratedLink[]
+  creator      User          @relation("TeamCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members      TeamMember[]
+  learningLogs LearningLog[]
+  portfolios   Portfolio[]
+  curatedLinks CuratedLink[]
 
   @@map("teams")
 }
 
 // 팀 멤버
 model TeamMember {
-  id        String   @id @default(uuid())
-  teamId    String   @map("team_id")
-  userId    String   @map("user_id")
-  role      String   @default("member") // 'leader' or 'member'
-  joinedAt DateTime  @default(now()) @map("joined_at")
+  id       String   @id @default(uuid())
+  teamId   String   @map("team_id")
+  userId   String   @map("user_id")
+  role     String   @default("member") // 'leader' or 'member'
+  joinedAt DateTime @default(now()) @map("joined_at")
 
   // Relations
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -66,21 +65,21 @@ model TeamMember {
 
 // 학습 로그
 model LearningLog {
-  id          String   @id @default(uuid())
-  teamId      String   @map("team_id")
-  createdBy   String   @map("created_by")
-  title       String
-  description String?
-  whatLearned String   @map("what_learned") // JSON string (배열)
+  id           String   @id @default(uuid())
+  teamId       String   @map("team_id")
+  createdBy    String   @map("created_by")
+  title        String
+  description  String?
+  whatLearned  String   @map("what_learned") // JSON string (배열)
   improvements String? // JSON string (배열)
-  nextSteps   String?  @map("next_steps") // JSON string (배열)
-  tags        String?  // JSON string (배열)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  nextSteps    String?  @map("next_steps") // JSON string (배열)
+  tags         String? // JSON string (배열)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  creator   User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("learning_logs")
 }
@@ -89,10 +88,12 @@ model LearningLog {
 model Portfolio {
   id        String   @id @default(uuid())
   teamId    String   @map("team_id")
+  userId    String // 🔧 Int → String!
+  user      User     @relation(fields: [userId], references: [id])
   title     String
   summary   String?
-  content   String?   // Markdown
-  publicUrl String?   @unique @map("public_url")
+  content   String? // Markdown
+  publicUrl String?  @unique @map("public_url")
   isPublic  Boolean  @default(false) @map("is_public")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -110,15 +111,14 @@ model CuratedLink {
   createdBy String   @map("created_by")
   title     String
   url       String
-  type      String?   // 'article', 'video', 'tutorial'
+  type      String? // 'article', 'video', 'tutorial'
   notes     String?
-  tags      String?   // JSON string (배열)
+  tags      String? // JSON string (배열)
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@map("curated_links")
 }
-

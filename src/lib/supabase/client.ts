@@ -15,9 +15,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export function createClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables')
+  }
+
   return createBrowserClient(
-    supabaseUrl,
-    supabaseAnonKey
+    supabaseUrl!,      // 이제 string 확정
+    supabaseAnonKey!   // 이제 string 확정
   )
 }
 
