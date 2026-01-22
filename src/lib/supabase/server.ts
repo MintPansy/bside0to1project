@@ -1,26 +1,26 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables!\n\n' +
-    'Please create a .env.local file in the root directory with:\n' +
-    'NEXT_PUBLIC_SUPABASE_URL=your-project-url\n' +
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key\n\n' +
-    'You can find these values in your Supabase project settings:\n' +
-    'https://supabase.com/dashboard/project/_/settings/api'
-  )
-}
-
 export function createClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Missing Supabase environment variables!\n\n' +
+      'Please create a .env.local file in the root directory with:\n' +
+      'NEXT_PUBLIC_SUPABASE_URL=your-project-url\n' +
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key\n\n' +
+      'You can find these values in your Supabase project settings:\n' +
+      'https://supabase.com/dashboard/project/_/settings/api'
+    )
+  }
+
   const cookieStore = cookies()
 
   return createServerClient(
-    supabaseUrl!,
-    supabaseAnonKey!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
@@ -45,7 +45,21 @@ export function createClient() {
 
 // Admin client (for server-side operations)
 export function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Missing Supabase environment variables!\n\n' +
+      'Please create a .env.local file in the root directory with:\n' +
+      'NEXT_PUBLIC_SUPABASE_URL=your-project-url\n' +
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key\n\n' +
+      'You can find these values in your Supabase project settings:\n' +
+      'https://supabase.com/dashboard/project/_/settings/api'
+    )
+  }
+
   if (!serviceRoleKey) {
     throw new Error(
       'Missing SUPABASE_SERVICE_ROLE_KEY!\n\n' +
