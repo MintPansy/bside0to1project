@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -11,7 +11,7 @@ const joinTeamSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     // 초대 코드로 초대 정보 조회
     const { data: invite, error: inviteError } = await supabase
+      .schema('public')
       .from('team_invites')
       .select('*, teams(*)')
       .eq('invite_code', validatedData.code)
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
 
     // 이미 팀 멤버인지 확인
     const { data: existingMember } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', invite.team_id)
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
 
     // 팀 멤버로 추가
     const { data: member, error: memberError } = await supabase
+      .schema('public')
       .from('team_members')
       .insert({
         team_id: invite.team_id,

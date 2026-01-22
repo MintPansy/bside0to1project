@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function TeamPage({
   params,
 }: {
   params: { teamId: string };
 }) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -18,6 +18,7 @@ export default async function TeamPage({
 
   // 팀 정보 조회
   const { data: team, error: teamError } = await supabase
+    .schema('public')
     .from('teams')
     .select('*')
     .eq('id', params.teamId)
@@ -35,6 +36,7 @@ export default async function TeamPage({
 
   // 팀원 목록 조회
   const { data: members } = await supabase
+    .schema('public')
     .from('team_members')
     .select(`
       *,
@@ -52,6 +54,7 @@ export default async function TeamPage({
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   
   const { count: logCount } = await supabase
+    .schema('public')
     .from('learning_logs')
     .select('*', { count: 'exact', head: true })
     .eq('team_id', params.teamId)

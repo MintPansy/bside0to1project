@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -15,7 +15,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -32,6 +32,7 @@ export async function GET(
 
     // 팀 정보 조회
     const { data: team, error: teamError } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -46,6 +47,7 @@ export async function GET(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -61,6 +63,7 @@ export async function GET(
 
     // 팀원 목록 조회
     const { data: members } = await supabase
+      .schema('public')
       .from('team_members')
       .select(`
         *,
@@ -78,6 +81,7 @@ export async function GET(
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
     const { count: logCount } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select('*', { count: 'exact', head: true })
       .eq('team_id', teamId)
@@ -106,7 +110,7 @@ export async function PUT(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -125,6 +129,7 @@ export async function PUT(
 
     // 팀 정보 조회
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -139,6 +144,7 @@ export async function PUT(
 
     // 팀 리더인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -155,6 +161,7 @@ export async function PUT(
 
     // 팀 수정
     const { data: updatedTeam, error } = await supabase
+      .schema('public')
       .from('teams')
       .update({
         ...validatedData,
@@ -194,7 +201,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -211,6 +218,7 @@ export async function DELETE(
 
     // 팀 정보 조회
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -233,6 +241,7 @@ export async function DELETE(
 
     // 팀 삭제 (CASCADE로 관련 데이터도 삭제됨)
     const { error } = await supabase
+      .schema('public')
       .from('teams')
       .delete()
       .eq('id', teamId);

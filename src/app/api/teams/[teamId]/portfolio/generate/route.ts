@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 // 자동 요약 생성 함수
@@ -128,7 +128,7 @@ export async function POST(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -145,6 +145,7 @@ export async function POST(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -152,6 +153,7 @@ export async function POST(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -173,6 +175,7 @@ export async function POST(
 
     // 모든 학습 로그 조회
     const { data: logs } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select(`
         *,
@@ -187,6 +190,7 @@ export async function POST(
 
     // 팀원 목록 조회
     const { data: members } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId);
@@ -199,6 +203,7 @@ export async function POST(
     const portfolioTitle = `${team.name} 포트폴리오`;
 
     const { data: portfolio, error } = await supabase
+      .schema('public')
       .from('portfolios')
       .insert({
         team_id: teamId,
@@ -220,6 +225,7 @@ export async function POST(
     // public_url 업데이트 (실제 ID 사용)
     const finalPublicUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/portfolio/${portfolio.id}`;
     await supabase
+      .schema('public')
       .from('portfolios')
       .update({ public_url: finalPublicUrl })
       .eq('id', portfolio.id);

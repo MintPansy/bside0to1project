@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 
 // GET /api/auth/me - 현재 사용자 정보 조회
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },

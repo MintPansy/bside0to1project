@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 // 무작위 초대 코드 생성
@@ -19,7 +19,7 @@ export async function POST(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -36,6 +36,7 @@ export async function POST(
 
     // 팀 정보 조회
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -50,6 +51,7 @@ export async function POST(
 
     // 팀 리더인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -66,6 +68,7 @@ export async function POST(
 
     // 기존 초대 코드가 있는지 확인 (만료되지 않은 것)
     const { data: existingInvite } = await supabase
+      .schema('public')
       .from('team_invites')
       .select('*')
       .eq('team_id', teamId)
@@ -89,6 +92,7 @@ export async function POST(
     expiresAt.setDate(expiresAt.getDate() + 7); // 7일 후 만료
 
     const { data: invite, error } = await supabase
+      .schema('public')
       .from('team_invites')
       .insert({
         team_id: teamId,

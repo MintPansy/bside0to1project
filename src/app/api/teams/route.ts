@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
 
 const createTeamSchema = z.object({
   name: z.string().min(1, '팀 이름을 입력해주세요'),
@@ -11,8 +10,7 @@ const createTeamSchema = z.object({
 // GET /api/teams - 현재 사용자가 속한 모든 팀 조회
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createClient();
 
     const {
       data: { session },
@@ -28,6 +26,7 @@ export async function GET() {
     // 현재 사용자가 속한 팀 조회
     // RLS 정책에 의해 자동으로 필터링됨
     const { data: teams, error } = await supabase
+      .schema('public')
       .from('teams')
       .select(`
         *,
@@ -72,8 +71,7 @@ export async function GET() {
 // POST /api/teams - 팀 생성
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createClient();
 
     const {
       data: { session },
@@ -91,6 +89,7 @@ export async function POST(request: NextRequest) {
 
     // 팀 생성
     const { data: team, error: teamError } = await supabase
+      .schema('public')
       .from('teams')
       .insert({
         name: validatedData.name,
@@ -120,6 +119,7 @@ export async function POST(request: NextRequest) {
 
     // 팀 생성자를 leader로 team_members에 추가
     const { error: memberError } = await supabase
+      .schema('public')
       .from('team_members')
       .insert({
         team_id: team.id,
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       console.error('POST /api/teams member creation error:', memberError);
       // 팀 생성은 성공했지만 멤버 추가 실패 시 팀 삭제
       try {
-        await supabase.from('teams').delete().eq('id', team.id);
+        await supabase.schema('public').from('teams').delete().eq('id', team.id);
       } catch (deleteError) {
         console.error('Failed to delete team after member error:', deleteError);
       }

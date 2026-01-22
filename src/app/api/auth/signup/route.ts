@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseAdminClient } from '@/lib/supabase';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
 
 const signupSchema = z.object({
   email: z.string().email('올바른 이메일 형식이 아닙니다'),
@@ -24,8 +22,7 @@ export async function POST(request: NextRequest) {
 
     if (requireEmailConfirmation) {
       // 일반 signUp - 이메일 인증 링크 전송
-      const cookieStore = await cookies();
-      const routeHandlerClient = createRouteHandlerClient({ cookies: () => cookieStore });
+      const routeHandlerClient = createClient();
       
       const signUpResult = await routeHandlerClient.auth.signUp({
         email: validatedData.email,
@@ -42,7 +39,7 @@ export async function POST(request: NextRequest) {
       authError = signUpResult.error;
     } else {
       // Admin createUser - 자동 확인 (개발 환경)
-      const supabase = createSupabaseAdminClient();
+      const supabase = createAdminClient();
       const adminResult = await supabase.auth.admin.createUser({
         email: validatedData.email,
         password: validatedData.password,
@@ -72,11 +69,12 @@ export async function POST(request: NextRequest) {
     // Create user profile in users table
     // Admin client는 Service Role Key를 사용하므로 RLS를 자동으로 우회합니다
     // 트리거 함수가 자동으로 생성할 수도 있으므로, 먼저 트리거를 기다립니다
-    const supabase = createSupabaseAdminClient();
+    const supabase = createAdminClient();
     await new Promise(resolve => setTimeout(resolve, 500));
     
     // 트리거가 자동으로 생성했는지 확인
     const { data: existingUser } = await supabase
+      .schema('public')
       .from('users')
       .select('*')
       .eq('id', authData.user.id)
@@ -86,6 +84,7 @@ export async function POST(request: NextRequest) {
       // 트리거가 작동하지 않았으므로 수동으로 삽입
       // Admin client는 RLS를 우회하므로 직접 삽입 가능
       const { error: profileError } = await supabase
+        .schema('public')
         .from('users')
         .insert({
           id: authData.user.id,
@@ -130,8 +129,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 세션이 없으면 로그인하여 세션 생성 (자동 확인된 경우)
-    const cookieStore = await cookies();
-    const routeHandlerClient = createRouteHandlerClient({ cookies: () => cookieStore });
+    const routeHandlerClient = createClient();
     
     const { data: sessionData, error: sessionError } = await routeHandlerClient.auth.signInWithPassword({
       email: validatedData.email,

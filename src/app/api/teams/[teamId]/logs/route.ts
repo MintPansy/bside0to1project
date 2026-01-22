@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -19,7 +19,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -38,6 +38,7 @@ export async function GET(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -45,6 +46,7 @@ export async function GET(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -59,6 +61,7 @@ export async function GET(
 
     // 학습 로그 조회
     let query = supabase
+      .schema('public')
       .from('learning_logs')
       .select(`
         *,
@@ -99,7 +102,7 @@ export async function POST(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -118,6 +121,7 @@ export async function POST(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -125,6 +129,7 @@ export async function POST(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -139,6 +144,7 @@ export async function POST(
 
     // 학습 로그 생성
     const { data: log, error } = await supabase
+      .schema('public')
       .from('learning_logs')
       .insert({
         team_id: teamId,

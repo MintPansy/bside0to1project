@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 const resendSchema = z.object({
@@ -13,8 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = resendSchema.parse(body);
 
-    const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createClient();
 
     // 이메일 인증 재전송
     const { error } = await supabase.auth.resend({

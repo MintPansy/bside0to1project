@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -19,7 +19,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -36,6 +36,7 @@ export async function GET(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -43,6 +44,7 @@ export async function GET(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -57,6 +59,7 @@ export async function GET(
 
     // 학습 로그 조회
     const { data: log, error } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select(`
         *,
@@ -93,7 +96,7 @@ export async function PUT(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -112,6 +115,7 @@ export async function PUT(
 
     // 학습 로그 조회
     const { data: log } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select('*')
       .eq('id', logId)
@@ -135,6 +139,7 @@ export async function PUT(
 
     // 학습 로그 수정
     const { data: updatedLog, error } = await supabase
+      .schema('public')
       .from('learning_logs')
       .update({
         ...validatedData,
@@ -181,7 +186,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -198,6 +203,7 @@ export async function DELETE(
 
     // 학습 로그 조회
     const { data: log } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select('*')
       .eq('id', logId)
@@ -221,6 +227,7 @@ export async function DELETE(
 
     // 학습 로그 삭제
     const { error } = await supabase
+      .schema('public')
       .from('learning_logs')
       .delete()
       .eq('id', logId);

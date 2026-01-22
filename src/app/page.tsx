@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import FAQAccordion from '@/components/FAQAccordion';
 import HeroImage from '@/components/HeroImage';
@@ -7,7 +7,7 @@ import HeroImage from '@/components/HeroImage';
 export const dynamic = 'force-dynamic';
 
 export default async function LandingPage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -66,7 +66,7 @@ export default async function LandingPage() {
       <section className="relative min-h-screen flex items-center pt-16">
         {/* 배경 그라데이션 */}
         <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-white"></div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* 텍스트 콘텐츠 */}
@@ -105,7 +105,7 @@ export default async function LandingPage() {
                 </Link>
               </div>
             </div>
-            
+
             {/* 이미지 */}
             <div className="relative">
               <HeroImage />

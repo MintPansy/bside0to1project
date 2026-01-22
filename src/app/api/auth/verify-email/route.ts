@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 
 // POST /api/auth/verify-email - 이메일 인증 확인
 // URL 파라미터로 token을 받아서 이메일 인증 처리
@@ -17,8 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createClient();
 
     // 이메일 인증 처리
     // Supabase 이메일 인증 링크는 token_hash를 사용합니다

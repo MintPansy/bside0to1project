@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 // DELETE /api/teams/[teamId]/members/[memberId] - 팀원 제거
@@ -9,7 +9,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -26,6 +26,7 @@ export async function DELETE(
 
     // 팀 정보 조회
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -40,6 +41,7 @@ export async function DELETE(
 
     // 팀 리더인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -56,6 +58,7 @@ export async function DELETE(
 
     // 제거할 멤버 정보 확인
     const { data: targetMember } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('id', memberId)
@@ -79,6 +82,7 @@ export async function DELETE(
 
     // 팀원 제거
     const { error } = await supabase
+      .schema('public')
       .from('team_members')
       .delete()
       .eq('id', memberId);

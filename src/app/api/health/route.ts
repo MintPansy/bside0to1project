@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 
 // GET /api/health - 데이터베이스 연결 및 테이블 존재 여부 확인
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const supabase = createClient();
 
     const checks: Record<string, boolean | string> = {};
 
@@ -21,6 +19,7 @@ export async function GET() {
     // 2. teams 테이블 확인
     try {
       const { error } = await supabase
+        .schema('public')
         .from('teams')
         .select('id')
         .limit(1);
@@ -37,6 +36,7 @@ export async function GET() {
     // 3. team_members 테이블 확인
     try {
       const { error } = await supabase
+        .schema('public')
         .from('team_members')
         .select('id')
         .limit(1);
@@ -53,6 +53,7 @@ export async function GET() {
     // 4. users 테이블 확인
     try {
       const { error } = await supabase
+        .schema('public')
         .from('users')
         .select('id')
         .limit(1);

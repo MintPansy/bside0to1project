@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createSupabaseClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const supabase = createSupabaseClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {

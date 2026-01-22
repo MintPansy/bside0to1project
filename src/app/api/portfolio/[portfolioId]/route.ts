@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 // GET /api/portfolio/[portfolioId] - 공개 포트폴리오 조회 (인증 불필요)
@@ -9,12 +9,13 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const { portfolioId } = params;
 
     // 포트폴리오 조회
     const { data: portfolio, error } = await supabase
+      .schema('public')
       .from('portfolios')
       .select(`
         *,

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import CreateTeamModal from '@/components/CreateTeamModal';
 import DashboardStats from '@/components/DashboardStats';
 import TeamCard from '@/components/TeamCard';
@@ -10,7 +10,7 @@ import IconWrapper from '@/components/IconWrapper';
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -20,6 +20,7 @@ export default async function DashboardPage() {
   }
 
   const { data: user } = await supabase
+    .schema('public')
     .from('users')
     .select('*')
     .eq('id', session.user.id)
@@ -27,6 +28,7 @@ export default async function DashboardPage() {
 
   // 현재 사용자가 속한 팀 조회
   const { data: teams } = await supabase
+    .schema('public')
     .from('teams')
     .select(`
       *,
@@ -45,12 +47,14 @@ export default async function DashboardPage() {
     
     // 모든 팀의 로그 수 집계
     const { count: logsCount } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select('*', { count: 'exact', head: true })
       .in('team_id', teamIds);
 
     // 모든 팀의 포트폴리오 수 집계
     const { count: portfoliosCount } = await supabase
+      .schema('public')
       .from('portfolios')
       .select('*', { count: 'exact', head: true })
       .in('team_id', teamIds);
@@ -67,6 +71,7 @@ export default async function DashboardPage() {
     
     // 최근 로그
     const { data: recentLogs } = await supabase
+      .schema('public')
       .from('learning_logs')
       .select(`
         *,
@@ -79,6 +84,7 @@ export default async function DashboardPage() {
 
     // 최근 포트폴리오
     const { data: recentPortfolios } = await supabase
+      .schema('public')
       .from('portfolios')
       .select(`
         *,
@@ -136,18 +142,21 @@ export default async function DashboardPage() {
     (teams || []).map(async (team: any) => {
       // 팀원 수
       const { count: memberCount } = await supabase
+        .schema('public')
         .from('team_members')
         .select('*', { count: 'exact', head: true })
         .eq('team_id', team.id);
 
       // 로그 수
       const { count: logCount } = await supabase
+        .schema('public')
         .from('learning_logs')
         .select('*', { count: 'exact', head: true })
         .eq('team_id', team.id);
 
       // 최근 업데이트
       const { data: lastLog } = await supabase
+        .schema('public')
         .from('learning_logs')
         .select('created_at')
         .eq('team_id', team.id)

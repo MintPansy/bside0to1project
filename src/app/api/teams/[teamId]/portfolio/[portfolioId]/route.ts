@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 
@@ -16,7 +16,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -33,6 +33,7 @@ export async function GET(
 
     // 포트폴리오 조회
     const { data: portfolio, error } = await supabase
+      .schema('public')
       .from('portfolios')
       .select('*')
       .eq('id', portfolioId)
@@ -48,6 +49,7 @@ export async function GET(
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -55,6 +57,7 @@ export async function GET(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -83,7 +86,7 @@ export async function PUT(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -102,6 +105,7 @@ export async function PUT(
 
     // 포트폴리오 조회
     const { data: portfolio } = await supabase
+      .schema('public')
       .from('portfolios')
       .select('*')
       .eq('id', portfolioId)
@@ -117,6 +121,7 @@ export async function PUT(
 
     // 팀 리더인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -125,6 +130,7 @@ export async function PUT(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -139,6 +145,7 @@ export async function PUT(
 
     // 포트폴리오 수정
     const { data: updatedPortfolio, error } = await supabase
+      .schema('public')
       .from('portfolios')
       .update({
         ...validatedData,
@@ -178,7 +185,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createSupabaseServerClient();
+    const supabase = createClient();
     
     const {
       data: { session },
@@ -195,6 +202,7 @@ export async function DELETE(
 
     // 포트폴리오 조회
     const { data: portfolio } = await supabase
+      .schema('public')
       .from('portfolios')
       .select('*')
       .eq('id', portfolioId)
@@ -210,6 +218,7 @@ export async function DELETE(
 
     // 팀 리더인지 확인
     const { data: member } = await supabase
+      .schema('public')
       .from('team_members')
       .select('*')
       .eq('team_id', teamId)
@@ -218,6 +227,7 @@ export async function DELETE(
       .single();
 
     const { data: team } = await supabase
+      .schema('public')
       .from('teams')
       .select('*')
       .eq('id', teamId)
@@ -232,6 +242,7 @@ export async function DELETE(
 
     // 포트폴리오 삭제
     const { error } = await supabase
+      .schema('public')
       .from('portfolios')
       .delete()
       .eq('id', portfolioId);
