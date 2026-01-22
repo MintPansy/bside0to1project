@@ -1,0 +1,124 @@
+// LearnTeam Prisma Schema (SQLite)
+// 하이브리드 접근: Supabase Auth + 로컬 데이터베이스
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 사용자 프로필 (Supabase Auth와 연동)
+// id는 Supabase auth.users의 UUID를 사용
+model User {
+  id        String   @id // Supabase auth.users.id
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  teamsCreated     Team[]         @relation("TeamCreator")
+  teamMemberships TeamMember[]
+  learningLogs    LearningLog[]
+  portfolios      Portfolio[]
+  curatedLinks    CuratedLink[]
+
+  @@map("users")
+}
+
+// 팀
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  creator       User           @relation("TeamCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members       TeamMember[]
+  learningLogs  LearningLog[]
+  portfolios    Portfolio[]
+  curatedLinks  CuratedLink[]
+
+  @@map("teams")
+}
+
+// 팀 멤버
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  role      String   @default("member") // 'leader' or 'member'
+  joinedAt DateTime  @default(now()) @map("joined_at")
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+// 학습 로그
+model LearningLog {
+  id          String   @id @default(uuid())
+  teamId      String   @map("team_id")
+  createdBy   String   @map("created_by")
+  title       String
+  description String?
+  whatLearned String   @map("what_learned") // JSON string (배열)
+  improvements String? // JSON string (배열)
+  nextSteps   String?  @map("next_steps") // JSON string (배열)
+  tags        String?  // JSON string (배열)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  team      Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator   User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("learning_logs")
+}
+
+// 포트폴리오
+model Portfolio {
+  id        String   @id @default(uuid())
+  teamId    String   @map("team_id")
+  title     String
+  summary   String?
+  content   String?   // Markdown
+  publicUrl String?   @unique @map("public_url")
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("portfolios")
+}
+
+// 큐레이션 링크 (글 큐레이션)
+model CuratedLink {
+  id        String   @id @default(uuid())
+  teamId    String   @map("team_id")
+  createdBy String   @map("created_by")
+  title     String
+  url       String
+  type      String?   // 'article', 'video', 'tutorial'
+  notes     String?
+  tags      String?   // JSON string (배열)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("curated_links")
+}
+
