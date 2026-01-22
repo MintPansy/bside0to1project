@@ -8,6 +8,8 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+// PrismaClient 생성 시 DATABASE_URL 환경 변수를 사용
+// Vercel에서는 SQLite를 사용할 수 없으므로, 프로덕션에서는 Supabase를 사용
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
