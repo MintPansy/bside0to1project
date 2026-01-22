@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && next build",
+  "buildCommand": "next build",
   "functions": {
     "src/app/api/**/*.ts": {
       "memory": 1024,
@@ -10,6 +10,7 @@
     "icn1"
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "DATABASE_URL": "file:./prisma/dev.db"
   }
 }
