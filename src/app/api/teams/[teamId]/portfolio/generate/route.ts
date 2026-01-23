@@ -128,7 +128,7 @@ export async function POST(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },

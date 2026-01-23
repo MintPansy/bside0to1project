@@ -7,7 +7,7 @@ import HeroImage from '@/components/HeroImage';
 export const dynamic = 'force-dynamic';
 
 export default async function LandingPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

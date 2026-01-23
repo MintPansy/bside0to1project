@@ -6,24 +6,32 @@ import DashboardStats from '@/components/DashboardStats';
 import TeamCard from '@/components/TeamCard';
 import ActivityFeed from '@/components/ActivityFeed';
 import IconWrapper from '@/components/IconWrapper';
+import PersonalLearningLogSection from '@/components/PersonalLearningLogSection';
+import LogoutButton from '@/components/LogoutButton';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
     redirect('/login');
+    // TypeScript가 redirect()가 함수를 종료한다는 것을 인식하지 못하므로
+    // never 타입을 반환하는 것으로 타입 단언
+    return null as never;
   }
+
+  const userId = session.user.id;
+  const userEmail = session.user.email || '';
 
   const { data: user } = await supabase
     .schema('public')
     .from('users')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', userId)
     .single();
 
   // 현재 사용자가 속한 팀 조회
@@ -34,7 +42,7 @@ export default async function DashboardPage() {
       *,
       team_members!inner(user_id)
     `)
-    .or(`created_by.eq.${session.user.id},team_members.user_id.eq.${session.user.id}`)
+    .or(`created_by.eq.${userId},team_members.user_id.eq.${userId}`)
     .order('created_at', { ascending: false });
 
   // 통계 데이터 수집
@@ -44,7 +52,7 @@ export default async function DashboardPage() {
 
   if (teams && teams.length > 0) {
     const teamIds = teams.map((t: any) => t.id);
-    
+
     // 모든 팀의 로그 수 집계
     const { count: logsCount } = await supabase
       .schema('public')
@@ -65,10 +73,10 @@ export default async function DashboardPage() {
 
   // 최근 활동 조회 (로그, 포트폴리오)
   const activities: any[] = [];
-  
+
   if (teams && teams.length > 0) {
     const teamIds = teams.map((t: any) => t.id);
-    
+
     // 최근 로그
     const { data: recentLogs } = await supabase
       .schema('public')
@@ -132,7 +140,7 @@ export default async function DashboardPage() {
     });
 
     // 시간순 정렬
-    activities.sort((a, b) => 
+    activities.sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
@@ -184,16 +192,22 @@ export default async function DashboardPage() {
                 대시보드
               </h1>
               <p className="text-gray-600">
-                환영합니다, <span className="font-semibold text-blue-600">{user?.name || session.user.email}</span>님!
+                환영합니다, <span className="font-semibold text-blue-600">{user?.name || userEmail}</span>님!
               </p>
             </div>
-            <div className="mt-4 sm:mt-0">
+            <div className="mt-4 sm:mt-0 flex gap-3">
               <CreateTeamModal />
+              <LogoutButton />
             </div>
           </div>
 
+          {/* 개인 학습 로그 섹션 */}
+          <div className="mb-10">
+            <PersonalLearningLogSection userId={userId} />
+          </div>
+
           {/* 빠른 통계 섹션 */}
-          <DashboardStats 
+          <DashboardStats
             totalTeams={totalTeams}
             totalLogs={totalLogs}
             totalPortfolios={totalPortfolios}

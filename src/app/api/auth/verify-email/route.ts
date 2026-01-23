@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 이메일 인증 처리
     // Supabase 이메일 인증 링크는 token_hash를 사용합니다

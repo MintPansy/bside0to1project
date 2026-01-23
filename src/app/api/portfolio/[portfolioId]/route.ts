@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const { portfolioId } = params;
 

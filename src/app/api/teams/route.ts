@@ -10,7 +10,7 @@ const createTeamSchema = z.object({
 // GET /api/teams - 현재 사용자가 속한 모든 팀 조회
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const {
       data: { session },
@@ -71,7 +71,7 @@ export async function GET() {
 // POST /api/teams - 팀 생성
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const {
       data: { session },

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 // GET /api/health - 데이터베이스 연결 및 테이블 존재 여부 확인
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const checks: Record<string, boolean | string> = {};
 

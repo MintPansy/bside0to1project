@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     if (requireEmailConfirmation) {
       // 일반 signUp - 이메일 인증 링크 전송
-      const routeHandlerClient = createClient();
+      const routeHandlerClient = await createClient();
       
       const signUpResult = await routeHandlerClient.auth.signUp({
         email: validatedData.email,

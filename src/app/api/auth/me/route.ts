@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 // GET /api/auth/me - 현재 사용자 정보 조회
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },

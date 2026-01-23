@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = resendSchema.parse(body);
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 이메일 인증 재전송
     const { error } = await supabase.auth.resend({

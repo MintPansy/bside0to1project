@@ -16,7 +16,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },
@@ -86,7 +86,7 @@ export async function PUT(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },
@@ -185,7 +185,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },

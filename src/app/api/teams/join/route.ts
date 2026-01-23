@@ -11,7 +11,7 @@ const joinTeamSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     const {
       data: { session },
