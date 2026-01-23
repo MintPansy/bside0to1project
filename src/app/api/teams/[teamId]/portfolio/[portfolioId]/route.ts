@@ -12,7 +12,7 @@ const updatePortfolioSchema = z.object({
 // GET /api/teams/[teamId]/portfolio/[portfolioId] - 포트폴리오 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string; portfolioId: string } }
+  { params }: { params: Promise<{ teamId: string; portfolioId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -29,7 +29,7 @@ export async function GET(
       );
     }
 
-    const { teamId, portfolioId } = params;
+    const { teamId, portfolioId } = await params;
 
     // 포트폴리오 조회
     const { data: portfolio, error } = await supabase
@@ -82,7 +82,7 @@ export async function GET(
 // PUT /api/teams/[teamId]/portfolio/[portfolioId] - 포트폴리오 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { teamId: string; portfolioId: string } }
+  { params }: { params: Promise<{ teamId: string; portfolioId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -99,7 +99,7 @@ export async function PUT(
       );
     }
 
-    const { teamId, portfolioId } = params;
+    const { teamId, portfolioId } = await params;
     const body = await request.json();
     const validatedData = updatePortfolioSchema.parse(body);
 
@@ -181,7 +181,7 @@ export async function PUT(
 // DELETE /api/teams/[teamId]/portfolio/[portfolioId] - 포트폴리오 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string; portfolioId: string } }
+  { params }: { params: Promise<{ teamId: string; portfolioId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -198,7 +198,7 @@ export async function DELETE(
       );
     }
 
-    const { teamId, portfolioId } = params;
+    const { teamId, portfolioId } = await params;
 
     // 포트폴리오 조회
     const { data: portfolio } = await supabase

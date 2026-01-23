@@ -15,7 +15,7 @@ const createLogSchema = z.object({
 // GET /api/teams/[teamId]/logs - 학습 로그 목록 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -32,7 +32,7 @@ export async function GET(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
     const { searchParams } = new URL(request.url);
     const sort = searchParams.get('sort') || 'recent';
 
@@ -98,7 +98,7 @@ export async function GET(
 // POST /api/teams/[teamId]/logs - 학습 로그 생성
 export async function POST(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -115,7 +115,7 @@ export async function POST(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
     const body = await request.json();
     const validatedData = createLogSchema.parse(body);
 

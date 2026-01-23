@@ -5,13 +5,13 @@ import { cookies } from 'next/headers';
 // GET /api/portfolio/[portfolioId] - 공개 포트폴리오 조회 (인증 불필요)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { portfolioId: string } }
+  { params }: { params: Promise<{ portfolioId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
     const supabase = await createClient();
     
-    const { portfolioId } = params;
+    const { portfolioId } = await params;
 
     // 포트폴리오 조회
     const { data: portfolio, error } = await supabase

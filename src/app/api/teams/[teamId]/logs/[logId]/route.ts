@@ -15,7 +15,7 @@ const updateLogSchema = z.object({
 // GET /api/teams/[teamId]/logs/[logId] - 학습 로그 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string; logId: string } }
+  { params }: { params: Promise<{ teamId: string; logId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -32,7 +32,7 @@ export async function GET(
       );
     }
 
-    const { teamId, logId } = params;
+    const { teamId, logId } = await params;
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
@@ -92,7 +92,7 @@ export async function GET(
 // PUT /api/teams/[teamId]/logs/[logId] - 학습 로그 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { teamId: string; logId: string } }
+  { params }: { params: Promise<{ teamId: string; logId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -109,7 +109,7 @@ export async function PUT(
       );
     }
 
-    const { teamId, logId } = params;
+    const { teamId, logId } = await params;
     const body = await request.json();
     const validatedData = updateLogSchema.parse(body);
 
@@ -182,7 +182,7 @@ export async function PUT(
 // DELETE /api/teams/[teamId]/logs/[logId] - 학습 로그 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string; logId: string } }
+  { params }: { params: Promise<{ teamId: string; logId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -199,7 +199,7 @@ export async function DELETE(
       );
     }
 
-    const { teamId, logId } = params;
+    const { teamId, logId } = await params;
 
     // 학습 로그 조회
     const { data: log } = await supabase

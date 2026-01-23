@@ -11,7 +11,7 @@ const updateTeamSchema = z.object({
 // GET /api/teams/[teamId] - 팀 정보 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -28,7 +28,7 @@ export async function GET(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
 
     // 팀 정보 조회
     const { data: team, error: teamError } = await supabase
@@ -106,7 +106,7 @@ export async function GET(
 // PUT /api/teams/[teamId] - 팀 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -123,7 +123,7 @@ export async function PUT(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
     const body = await request.json();
     const validatedData = updateTeamSchema.parse(body);
 
@@ -197,7 +197,7 @@ export async function PUT(
 // DELETE /api/teams/[teamId] - 팀 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -214,7 +214,7 @@ export async function DELETE(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
 
     // 팀 정보 조회
     const { data: team } = await supabase

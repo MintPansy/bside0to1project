@@ -15,7 +15,7 @@ function generateInviteCode(): string {
 // POST /api/teams/[teamId]/invite - 초대 링크 생성
 export async function POST(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -32,7 +32,7 @@ export async function POST(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
 
     // 팀 정보 조회
     const { data: team } = await supabase

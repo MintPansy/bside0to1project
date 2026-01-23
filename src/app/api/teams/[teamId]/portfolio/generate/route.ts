@@ -124,7 +124,7 @@ function generatePortfolioMarkdown(
 // POST /api/teams/[teamId]/portfolio/generate - 포트폴리오 생성
 export async function POST(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -141,7 +141,7 @@ export async function POST(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase

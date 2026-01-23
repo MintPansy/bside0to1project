@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 // DELETE /api/teams/[teamId]/members/[memberId] - 팀원 제거
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { teamId: string; memberId: string } }
+  { params }: { params: Promise<{ teamId: string; memberId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -22,7 +22,7 @@ export async function DELETE(
       );
     }
 
-    const { teamId, memberId } = params;
+    const { teamId, memberId } = await params;
 
     // 팀 정보 조회
     const { data: team } = await supabase

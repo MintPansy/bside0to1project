@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 // GET /api/teams/[teamId]/portfolio - 포트폴리오 목록 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -22,7 +22,7 @@ export async function GET(
       );
     }
 
-    const { teamId } = params;
+    const { teamId } = await params;
 
     // 사용자가 팀 멤버인지 확인
     const { data: member } = await supabase
