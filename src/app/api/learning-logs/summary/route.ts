@@ -6,7 +6,7 @@ import type { PortfolioStats } from '@/types/portfolio';
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -37,11 +37,11 @@ export async function GET(request: NextRequest) {
 
     // 통계 계산
     const total_logs = logsArray.length;
-    
+
     // 고유한 날짜 개수 계산
     const uniqueDates = new Set(logsArray.map(log => log.log_date));
     const total_days = uniqueDates.size;
-    
+
     // 일평균 계산
     const average_per_day = total_days > 0 ? Number((total_logs / total_days).toFixed(2)) : 0;
 
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       total_logs,
       total_days,
       average_per_day,
-      recent_logs,
+      recent_logs: recentLogs,
       top_tags,
     };
 
