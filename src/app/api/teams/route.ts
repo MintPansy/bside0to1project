@@ -94,7 +94,8 @@ export async function POST(request: NextRequest) {
       .insert({
         name: validatedData.name,
         description: validatedData.description || null,
-        created_by: session.user.id,
+        owner_id: session.user.id,  // 팀 소유자 (NOT NULL 필수)
+        created_by: session.user.id,  // 생성자
       })
       .select()
       .single();
