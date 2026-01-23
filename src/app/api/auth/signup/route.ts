@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 세션이 없으면 로그인하여 세션 생성 (자동 확인된 경우)
-    const routeHandlerClient = createClient();
+    const routeHandlerClient = await createClient();
     
     const { data: sessionData, error: sessionError } = await routeHandlerClient.auth.signInWithPassword({
       email: validatedData.email,
