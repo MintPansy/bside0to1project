@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { UpdatePortfolioRequest } from '@/types/portfolio';
 
-// GET /api/portfolio - 내 포트폴리오 조회
+// GET /api/profile/portfolio - 내 포트폴리오 조회
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(null);
       }
       
-      console.error('GET /api/portfolio error:', error);
+      console.error('GET /api/profile/portfolio error:', error);
       return NextResponse.json(
         { error: error.message || '포트폴리오 조회에 실패했습니다' },
         { status: 500 }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(portfolio);
   } catch (error: any) {
-    console.error('GET /api/portfolio catch error:', error);
+    console.error('GET /api/profile/portfolio catch error:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다' },
       { status: 500 }
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/portfolio - 포트폴리오 생성/수정
+// PUT /api/profile/portfolio - 포트폴리오 생성/수정
 export async function PUT(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -133,7 +133,7 @@ export async function PUT(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('PUT /api/portfolio update error:', error);
+        console.error('PUT /api/profile/portfolio update error:', error);
         return NextResponse.json(
           { error: error.message || '포트폴리오 수정에 실패했습니다' },
           { status: 500 }
@@ -153,7 +153,7 @@ export async function PUT(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('PUT /api/portfolio create error:', error);
+        console.error('PUT /api/profile/portfolio create error:', error);
         return NextResponse.json(
           { error: error.message || '포트폴리오 생성에 실패했습니다' },
           { status: 500 }
@@ -165,7 +165,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(portfolio);
   } catch (error: any) {
-    console.error('PUT /api/portfolio catch error:', error);
+    console.error('PUT /api/profile/portfolio catch error:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다' },
       { status: 500 }

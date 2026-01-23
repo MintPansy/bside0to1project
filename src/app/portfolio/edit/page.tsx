@@ -50,7 +50,7 @@ export default function PortfolioEditPage() {
   useEffect(() => {
     async function fetchPortfolio() {
       try {
-        const res = await fetch('/api/portfolio');
+        const res = await fetch('/api/profile/portfolio');
         if (!res.ok) {
           if (res.status === 401) {
             router.push('/login');
@@ -287,7 +287,7 @@ export default function PortfolioEditPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <p className="text-sm text-blue-800">
                   💡 포트폴리오가 공개되면{' '}
-                  <code className="bg-blue-100 px-1 rounded">/portfolio/[slug]</code> URL로
+                  <code className="bg-blue-100 px-1 rounded">/profile/[slug]</code> URL로
                   누구나 접근할 수 있습니다.
                 </p>
               </div>

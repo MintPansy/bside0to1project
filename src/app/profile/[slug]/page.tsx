@@ -21,7 +21,7 @@ export default function PublicPortfolioPage() {
       }
 
       try {
-        const res = await fetch(`/api/portfolio/${slug}`);
+        const res = await fetch(`/api/profile/portfolio/${slug}`);
         if (!res.ok) {
           if (res.status === 404) {
             setError('포트폴리오를 찾을 수 없습니다');

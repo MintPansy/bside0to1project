@@ -16,7 +16,7 @@ export default function PortfolioPage() {
     async function fetchData() {
       try {
         // 포트폴리오 조회
-        const portfolioRes = await fetch('/api/portfolio');
+        const portfolioRes = await fetch('/api/profile/portfolio');
         if (!portfolioRes.ok) {
           if (portfolioRes.status === 401) {
             router.push('/login');
@@ -104,12 +104,12 @@ export default function PortfolioPage() {
                 <p className="text-gray-600">
                   공개 URL:{' '}
                   <a
-                    href={`/portfolio/${portfolio.portfolio_slug}`}
+                    href={`/profile/${portfolio.portfolio_slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline"
                   >
-                    /portfolio/{portfolio.portfolio_slug}
+                    /profile/{portfolio.portfolio_slug}
                   </a>
                 </p>
               )}

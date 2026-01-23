@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { PortfolioWithStats } from '@/types/portfolio';
 
-// GET /api/portfolio/[slug] - 공개 포트폴리오 조회
+// GET /api/profile/portfolio/[slug] - 공개 포트폴리오 조회
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -34,7 +34,7 @@ export async function GET(
       .single();
 
     if (userError) {
-      console.error('GET /api/portfolio/[slug] user error:', userError);
+      console.error('GET /api/profile/portfolio/[slug] user error:', userError);
     }
 
     // 학습 로그 통계 조회
@@ -92,7 +92,7 @@ export async function GET(
 
     return NextResponse.json(portfolioWithStats);
   } catch (error: any) {
-    console.error('GET /api/portfolio/[slug] catch error:', error);
+    console.error('GET /api/profile/portfolio/[slug] catch error:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다' },
       { status: 500 }
