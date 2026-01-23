@@ -8,6 +8,8 @@ import ActivityFeed from '@/components/ActivityFeed';
 import IconWrapper from '@/components/IconWrapper';
 import PersonalLearningLogSection from '@/components/PersonalLearningLogSection';
 import LogoutButton from '@/components/LogoutButton';
+import DashboardPortfolioCard from '@/components/DashboardPortfolioCard';
+import type { PersonalPortfolio, PortfolioStats } from '@/types/portfolio';
 
 export const dynamic = 'force-dynamic';
 
@@ -145,6 +147,54 @@ export default async function DashboardPage() {
     );
   }
 
+  // 개인 포트폴리오 조회
+  const { data: portfolio } = await supabase
+    .from('personal_portfolios')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  // 개인 학습 로그 통계 조회
+  const { data: personalLogs } = await supabase
+    .from('personal_learning_logs')
+    .select('id, content, log_date, tags')
+    .eq('user_id', userId)
+    .order('log_date', { ascending: false });
+
+  const personalLogsArray = personalLogs || [];
+  const personalTotalLogs = personalLogsArray.length;
+  const uniqueDates = new Set(personalLogsArray.map(log => log.log_date));
+  const totalDays = uniqueDates.size;
+  const averagePerDay = totalDays > 0 ? Number((personalTotalLogs / totalDays).toFixed(2)) : 0;
+
+  const portfolioStats: PortfolioStats | null = portfolio
+    ? {
+      total_logs: personalTotalLogs,
+      total_days: totalDays,
+      average_per_day: averagePerDay,
+      recent_logs: personalLogsArray.slice(0, 10).map(log => ({
+        id: log.id,
+        content: log.content,
+        log_date: log.log_date,
+        tags: log.tags || [],
+      })),
+      top_tags: (() => {
+        const tagCounts: Record<string, number> = {};
+        personalLogsArray.forEach(log => {
+          if (log.tags && Array.isArray(log.tags)) {
+            log.tags.forEach(tag => {
+              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            });
+          }
+        });
+        return Object.entries(tagCounts)
+          .map(([tag, count]) => ({ tag, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
+      })(),
+    }
+    : null;
+
   // 팀별 상세 정보 조회
   const teamsWithStats = await Promise.all(
     (teams || []).map(async (team: any) => {
@@ -204,6 +254,15 @@ export default async function DashboardPage() {
           {/* 개인 학습 로그 섹션 */}
           <div className="mb-10">
             <PersonalLearningLogSection userId={userId} />
+          </div>
+
+          {/* 포트폴리오 카드 */}
+          <div className="mb-10">
+            <DashboardPortfolioCard
+              portfolio={portfolio}
+              stats={portfolioStats}
+              userName={user?.name || userEmail.split('@')[0]}
+            />
           </div>
 
           {/* 빠른 통계 섹션 */}

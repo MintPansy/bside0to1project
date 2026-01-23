@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 export default async function TeamPage({
   params,
 }: {
-  params: { teamId: string };
+  params: Promise<{ teamId: string }>;
 }) {
+  const { teamId } = await params;
   const supabase = await createClient();
   const {
     data: { session },
@@ -21,7 +22,7 @@ export default async function TeamPage({
     .schema('public')
     .from('teams')
     .select('*')
-    .eq('id', params.teamId)
+    .eq('id', teamId)
     .single();
 
   if (teamError || !team) {
@@ -47,7 +48,7 @@ export default async function TeamPage({
         avatar_url
       )
     `)
-    .eq('team_id', params.teamId);
+    .eq('team_id', teamId);
 
   // 학습 로그 통계 (지난 7일)
   const sevenDaysAgo = new Date();
@@ -57,7 +58,7 @@ export default async function TeamPage({
     .schema('public')
     .from('learning_logs')
     .select('*', { count: 'exact', head: true })
-    .eq('team_id', params.teamId)
+    .eq('team_id', teamId)
     .gte('created_at', sevenDaysAgo.toISOString());
 
   const stats = {
@@ -82,7 +83,7 @@ export default async function TeamPage({
             </div>
             {isLeader && (
               <Link
-                href={`/teams/${params.teamId}/settings`}
+                href={`/teams/${teamId}/settings`}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
                 설정
@@ -138,14 +139,14 @@ export default async function TeamPage({
           {/* 빠른 링크 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
-              href={`/teams/${params.teamId}/logs`}
+              href={`/teams/${teamId}/logs`}
               className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-2">학습 로그</h3>
               <p className="text-gray-600 text-sm">팀의 학습 내용을 기록하세요</p>
             </Link>
             <Link
-              href={`/teams/${params.teamId}/portfolio`}
+              href={`/teams/${teamId}/portfolio`}
               className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-2">포트폴리오</h3>
@@ -153,7 +154,7 @@ export default async function TeamPage({
             </Link>
             {isLeader && (
               <Link
-                href={`/teams/${params.teamId}/settings`}
+                href={`/teams/${teamId}/settings`}
                 className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">설정</h3>

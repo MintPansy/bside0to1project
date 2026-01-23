@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "cross-env NEXT_PRIVATE_SKIP_TURBO=1 next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
@@ -33,6 +33,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^7.0.3",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.1.1",
     "postcss": "^8",
