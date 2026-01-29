@@ -1,40 +1,18 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function Navbar() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-
-    getUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+  const router = useRouter()
+  const { user, isLoading, isAnonymous, signOut } = useAuth()
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
-  };
+    await signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <nav className="bg-white shadow-sm">
@@ -46,9 +24,13 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            {user ? (
+            {isLoading ? (
+              <span className="text-gray-400 text-sm">로딩중...</span>
+            ) : user ? (
               <>
-                <span className="text-gray-700">{user.email}</span>
+                <span className="text-gray-700">
+                  {isAnonymous ? '게스트' : user.email}
+                </span>
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
@@ -68,6 +50,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  )
 }
-
