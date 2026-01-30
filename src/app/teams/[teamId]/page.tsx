@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { SKIP_AUTH, DEMO_USER } from '@/lib/auth/demo';
+import { getTeamById, getTeamMembers, getLearningLogsByTeamId } from '@/lib/store/local-db';
 
 export default async function TeamPage({
   params,
@@ -8,6 +10,142 @@ export default async function TeamPage({
   params: Promise<{ teamId: string }>;
 }) {
   const { teamId } = await params;
+
+  // 데모 모드: 로컬 DB 사용
+  if (SKIP_AUTH) {
+    const team = getTeamById(teamId);
+
+    if (!team) {
+      return (
+        <div className="min-h-screen bg-gray-50 p-8">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-2xl font-bold text-gray-900">팀을 찾을 수 없습니다</h1>
+          </div>
+        </div>
+      );
+    }
+
+    const members = getTeamMembers(teamId);
+    const logs = getLearningLogsByTeamId(teamId);
+
+    // 지난 7일 로그 수
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const logCountLast7Days = logs.filter(
+      log => new Date(log.created_at) >= sevenDaysAgo
+    ).length;
+
+    const stats = {
+      memberCount: members.length,
+      logCountLast7Days,
+    };
+
+    const currentMember = members.find(m => m.user_id === DEMO_USER.id);
+    const isLeader = currentMember?.role === 'leader' || team.created_by === DEMO_USER.id;
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* 데모 모드 배너 */}
+        <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center text-sm text-yellow-800">
+          데모 모드로 실행 중입니다. 데이터는 서버 재시작 시 초기화됩니다.
+        </div>
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{team.name}</h1>
+                {team.description && (
+                  <p className="text-gray-600">{team.description}</p>
+                )}
+              </div>
+              {isLeader && (
+                <Link
+                  href={`/teams/${teamId}/settings`}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                >
+                  설정
+                </Link>
+              )}
+            </div>
+
+            {/* 통계 카드 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">팀원 수</h3>
+                <p className="text-3xl font-bold text-gray-900">{stats.memberCount}</p>
+              </div>
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">지난 7일 로그</h3>
+                <p className="text-3xl font-bold text-gray-900">{stats.logCountLast7Days}</p>
+              </div>
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">최근 업데이트</h3>
+                <p className="text-lg font-semibold text-gray-900">
+                  {new Date(team.updated_at).toLocaleDateString('ko-KR')}
+                </p>
+              </div>
+            </div>
+
+            {/* 팀원 목록 */}
+            <div className="bg-white shadow rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">팀원</h2>
+              <div className="space-y-2">
+                {members.length > 0 ? (
+                  members.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {member.user?.name || '알 수 없음'}
+                        </p>
+                        <p className="text-sm text-gray-500">{member.user?.email}</p>
+                      </div>
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        {member.role === 'leader' ? '리더' : '멤버'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">팀원이 없습니다</p>
+                )}
+              </div>
+            </div>
+
+            {/* 빠른 링크 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link
+                href={`/teams/${teamId}/logs`}
+                className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">학습 로그</h3>
+                <p className="text-gray-600 text-sm">팀의 학습 내용을 기록하세요</p>
+              </Link>
+              <Link
+                href={`/teams/${teamId}/portfolio`}
+                className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
+              >
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">포트폴리오</h3>
+                <p className="text-gray-600 text-sm">자동 생성된 포트폴리오를 확인하세요</p>
+              </Link>
+              {isLeader && (
+                <Link
+                  href={`/teams/${teamId}/settings`}
+                  className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">설정</h3>
+                  <p className="text-gray-600 text-sm">팀 정보를 관리하세요</p>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 일반 모드: Supabase 사용
   const supabase = await createClient();
   const {
     data: { session },
@@ -53,7 +191,7 @@ export default async function TeamPage({
   // 학습 로그 통계 (지난 7일)
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  
+
   const { count: logCount } = await supabase
     .schema('public')
     .from('learning_logs')

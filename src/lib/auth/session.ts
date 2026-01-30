@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { SKIP_AUTH, DEMO_USER } from './demo'
 import type { Session, User } from '@supabase/supabase-js'
 
 export type SessionResult = {
@@ -10,10 +11,19 @@ export type SessionResult = {
 
 /**
  * API Route에서 세션 검증
- * - getSession()만 사용 (네트워크 요청 최소화)
- * - 미들웨어에서 이미 refresh 처리했으므로 여기선 파싱만
+ * - SKIP_AUTH=true 일 때 데모 세션 반환
+ * - 일반 모드: getSession()만 사용 (네트워크 요청 최소화)
  */
 export async function getServerSession(): Promise<SessionResult> {
+  // 데모 모드: 가짜 세션 반환
+  if (SKIP_AUTH) {
+    return {
+      session: { user: DEMO_USER } as unknown as Session,
+      user: DEMO_USER as unknown as User,
+      error: null,
+    }
+  }
+
   try {
     const supabase = await createClient()
     const { data: { session }, error } = await supabase.auth.getSession()
@@ -38,14 +48,23 @@ export async function getServerSession(): Promise<SessionResult> {
 
 /**
  * 인증 필수 API Route용 래퍼
+ * - SKIP_AUTH=true 일 때 항상 데모 사용자 반환
  * - 세션 없으면 401 반환
- * - anonymous 사용자 허용 여부 선택
  */
 export async function requireAuth(options?: { allowAnonymous?: boolean }): Promise<{
   session: Session
   user: User
   isAnonymous: boolean
 } | Response> {
+  // 데모 모드: 항상 인증 통과
+  if (SKIP_AUTH) {
+    return {
+      session: { user: DEMO_USER } as unknown as Session,
+      user: DEMO_USER as unknown as User,
+      isAnonymous: false,
+    }
+  }
+
   const { session, user, error } = await getServerSession()
 
   if (error || !session || !user) {
@@ -70,10 +89,13 @@ export async function requireAuth(options?: { allowAnonymous?: boolean }): Promi
 
 /**
  * JWT에서 user_id 직접 추출 (세션 파싱 없이)
- * - 가장 빠른 방법이지만 검증은 안 됨
- * - RLS가 보안을 담당하는 경우에만 사용
  */
 export async function getUserIdFromCookie(): Promise<string | null> {
+  // 데모 모드
+  if (SKIP_AUTH) {
+    return DEMO_USER.id
+  }
+
   try {
     const cookieStore = await cookies()
     const allCookies = cookieStore.getAll()

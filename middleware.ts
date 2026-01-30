@@ -2,11 +2,27 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  // updateSession에서 세션 정보도 함께 반환받음 (중복 호출 제거)
-  const { response, session } = await updateSession(req)
+// 환경 변수로 인증 스킵 여부 결정
+const SKIP_AUTH = process.env.SKIP_AUTH === 'true'
 
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // 인증 스킵 모드: 모든 보호 라우트 접근 허용
+  if (SKIP_AUTH) {
+    // 루트 페이지 → 대시보드로 리다이렉트
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+    // 로그인/회원가입 페이지 → 대시보드로 리다이렉트
+    if (pathname === '/login' || pathname === '/signup') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+    return NextResponse.next()
+  }
+
+  // 일반 모드: 기존 인증 로직
+  const { response, session } = await updateSession(req)
 
   // Protected routes
   const protectedRoutes = ['/dashboard', '/teams', '/logs']
